@@ -1,0 +1,139 @@
+================================================================================
+   RESEARCHVISIONPRO ΓÇö ENDPOINT INTEGRATION TESTS
+   Target: http://localhost:8000
+================================================================================
+
+≡ƒû╝∩╕Å  Generating synthetic test images ΓÇª
+   Color PNG:  36,223 bytes
+   Gray PNG:   7,412 bytes
+   4-band TIFF: 131,392 bytes
+
+≡ƒ⌐║  Health Check
+----------------------------------------------------------------------
+  Γ£à GET /health                                    0.0 ms  200
+
+≡ƒôÉ  Spatial Processing  (/api/spatial)
+----------------------------------------------------------------------
+  Γ£à POST /spatial/histogram-eq                  3676.6 ms  200
+  Γ£à POST /spatial/clahe                         2057.4 ms  200
+  Γ£à POST /spatial/contrast-stretch              2053.0 ms  200
+  Γ£à POST /spatial/gamma                         2045.3 ms  200
+  Γ£à POST /spatial/log-transform                 2066.6 ms  200
+  Γ£à POST /spatial/filter (mean)                 2040.5 ms  200
+  Γ£à POST /spatial/filter (gaussian)             2047.7 ms  200
+  Γ£à POST /spatial/filter (median)               2052.1 ms  200
+  Γ£à POST /spatial/filter (laplacian)            2059.9 ms  200
+  Γ£à POST /spatial/filter (sobel)                2073.8 ms  200
+  Γ£à POST /spatial/unsharp-mask                  2047.6 ms  200
+
+≡ƒîè  Frequency Processing  (/api/frequency)
+----------------------------------------------------------------------
+  Γ£à POST /frequency/fft                         2093.2 ms  200
+  Γ£à POST /frequency/filter (ideal_low)          2072.6 ms  200
+  Γ£à POST /frequency/filter (ideal_high)         2090.8 ms  200
+  Γ£à POST /frequency/filter (butterworth_low)    2106.9 ms  200
+  Γ£à POST /frequency/filter (butterworth_high)    2093.0 ms  200
+  Γ£à POST /frequency/filter (gaussian_low)       2072.4 ms  200
+  Γ£à POST /frequency/filter (gaussian_high)      2085.4 ms  200
+  Γ£à POST /frequency/filter (notch)              2091.8 ms  200
+  Γ£à POST /frequency/inverse                     2122.8 ms  200
+
+≡ƒöº  Restoration  (/api/restoration)
+----------------------------------------------------------------------
+  Γ£à POST /restoration/add-noise (gaussian)      2066.7 ms  200
+  Γ£à POST /restoration/add-noise (salt_pepper)    2073.6 ms  200
+  Γ£à POST /restoration/add-noise (speckle)       2066.0 ms  200
+  Γ£à POST /restoration/add-noise (poisson)       2086.1 ms  200
+  Γ£à POST /restoration/denoise-spatial (arithmetic_mean)    2075.8 ms  200
+  Γ£à POST /restoration/denoise-spatial (geometric_mean)    2069.6 ms  200
+  Γ£à POST /restoration/denoise-spatial (median)    2079.7 ms  200
+  Γ£à POST /restoration/denoise-spatial (adaptive_median)    6408.0 ms  200
+  Γ£à POST /restoration/denoise-spatial (contra_harmonic)    2037.7 ms  200
+  Γ£à POST /restoration/wiener                    2084.2 ms  200
+  Γ£à POST /restoration/motion-deblur             2087.6 ms  200
+
+≡ƒÄ¿  Color Processing  (/api/color)
+----------------------------------------------------------------------
+  Γ£à POST /color/convert (HSV)                   2050.4 ms  200
+  Γ£à POST /color/convert (HSI)                   2089.5 ms  200
+  Γ£à POST /color/convert (LAB)                   2206.0 ms  200
+  Γ£à POST /color/convert (YCbCr)                 2061.7 ms  200
+  Γ£à POST /color/convert (GRAY)                  2059.7 ms  200
+  Γ£à POST /color/convert (RGB)                   2027.0 ms  200
+  Γ£à POST /color/false-color (jet)               2041.6 ms  200
+  Γ£à POST /color/false-color (hot)               2055.1 ms  200
+  Γ£à POST /color/false-color (cool)              2049.1 ms  200
+  Γ£à POST /color/false-color (viridis)           2090.1 ms  200
+  Γ£à POST /color/false-color (rainbow)           2040.2 ms  200
+  Γ£à POST /color/false-color (plasma)            2077.9 ms  200
+  Γ£à POST /color/histogram-eq-color              2046.7 ms  200
+  Γ£à POST /color/color-segment                   2061.8 ms  200
+  Γ£à POST /color/channel-split                   2057.8 ms  200
+
+≡ƒö¼  Morphology  (/api/morphology)
+----------------------------------------------------------------------
+  Γ£à POST /morphology/erode                      2061.5 ms  200
+  Γ£à POST /morphology/dilate                     2063.2 ms  200
+  Γ£à POST /morphology/open                       2057.6 ms  200
+  Γ£à POST /morphology/close                      2069.5 ms  200
+  Γ£à POST /morphology/gradient                   2042.7 ms  200
+  Γ£à POST /morphology/tophat                     2057.9 ms  200
+  Γ£à POST /morphology/blackhat                   2043.9 ms  200
+  Γ£à POST /morphology/skeleton                   2074.8 ms  200
+
+Γ£é∩╕Å  Segmentation  (/api/segmentation)
+----------------------------------------------------------------------
+  Γ£à POST /segmentation/threshold (global)       2051.9 ms  200
+  Γ£à POST /segmentation/threshold (otsu)         2056.8 ms  200
+  Γ£à POST /segmentation/threshold (adaptive_mean)    2066.1 ms  200
+  Γ£à POST /segmentation/threshold (adaptive_gaussian)    2062.9 ms  200
+  Γ£à POST /segmentation/edge-detect (sobel)      2052.9 ms  200
+  Γ£à POST /segmentation/edge-detect (prewitt)    2066.4 ms  200
+  Γ£à POST /segmentation/edge-detect (roberts)    2046.0 ms  200
+  Γ£à POST /segmentation/edge-detect (canny)      2048.2 ms  200
+  Γ£à POST /segmentation/edge-detect (laplacian)    2066.4 ms  200
+  Γ£à POST /segmentation/hough-lines              2055.1 ms  200
+  Γ£à POST /segmentation/hough-circles            2058.5 ms  200
+  Γ£à POST /segmentation/region-grow              2108.0 ms  200
+  Γ£à POST /segmentation/watershed                2059.8 ms  200
+  Γ£à POST /segmentation/connected-components     2062.2 ms  200
+
+≡ƒºá  Deep Learning  (/api/dl)
+----------------------------------------------------------------------
+  Γ£à POST /dl/super-resolution (x2)              2152.1 ms  200
+  Γ£à POST /dl/super-resolution (x4)              2373.8 ms  200
+  Γ£à POST /dl/denoise                            2317.6 ms  200
+
+≡ƒ¢░∩╕Å  Remote Sensing  (/api/remote)
+----------------------------------------------------------------------
+  Γ£à POST /remote/ndvi                           2033.0 ms  200
+  Γ£à POST /remote/band-composite                 2063.2 ms  200
+  Γ£à POST /remote/band-stats                     2044.5 ms  200
+  Γ£à POST /remote/band-viewer                    2055.9 ms  200
+  Γ£à POST /remote/enhance-satellite              2063.3 ms  200
+  Γ£à POST /remote/spectral-profile               2061.6 ms  200
+
+
+================================================================================
+   RESEARCHVISIONPRO ΓÇö TEST SUMMARY
+================================================================================
+
+Module             Passed   Failed  Skipped    Total
+--------------------------------------------------------
+core                    1        0        0        1
+spatial                11        0        0       11
+frequency               9        0        0        9
+restoration            11        0        0       11
+color                  15        0        0       15
+morphology              8        0        0        8
+segmentation           14        0        0       14
+deeplearning            3        0        0        3
+remote                  6        0        0        6
+--------------------------------------------------------
+TOTAL                  78        0        0       78
+
+ΓÅ▒  Avg response time: 2124 ms
+ΓÅ▒  Total test time:   165.7 s
+
+≡ƒÄë  ALL 78 TESTS PASSED!
+================================================================================
