@@ -157,14 +157,14 @@ export default function ImageCanvas({
             {/* ── Dual Panel ───────────────────────────────────── */}
             <div className="flex flex-1 min-h-0 bg-gray-900 rounded-b-lg">
                 {/* ── Left: Original ──────────────────────────────── */}
-                <div className="flex-1 flex flex-col border-r border-gray-700">
+                <div className="flex-1 min-w-0 flex flex-col border-r border-gray-700">
                     <div className="px-3 py-1.5 bg-gray-800/50 border-b border-gray-700/50">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Original</span>
                     </div>
 
                     <div className="flex-1 min-h-0 overflow-auto relative">
                         {originalImage ? (
-                            <div className="flex items-center justify-center min-h-full p-4">
+                            <div className="min-w-full min-h-full p-4 grid place-items-center">
                                 <img
                                     src={originalImage}
                                     alt="Original"
@@ -224,7 +224,7 @@ export default function ImageCanvas({
                 </div>
 
                 {/* ── Right: Processed ────────────────────────────── */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 min-w-0 flex flex-col">
                     <div className="px-3 py-1.5 bg-gray-800/50 border-b border-gray-700/50">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Processed</span>
                     </div>
@@ -239,7 +239,7 @@ export default function ImageCanvas({
                         )}
 
                         {processedImage ? (
-                            <div className="flex items-center justify-center min-h-full p-4">
+                            <div className="min-w-full min-h-full p-4 grid place-items-center">
                                 <img
                                     src={processedImage}
                                     alt="Processed"
