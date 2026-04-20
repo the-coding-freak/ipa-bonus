@@ -154,6 +154,16 @@ export default function Home() {
         setError(null)
     }, [])
 
+    // ── Clear / remove image ───────────────────────────────
+    const handleClearImage = useCallback(() => {
+        setOriginalFile(null)
+        setOriginalImage(null)
+        setProcessedImage(null)
+        setMetadata(null)
+        setError(null)
+        addToast('Image removed', 'info')
+    }, [addToast])
+
     // ── Operation selection handler ──────────────────────────
     const handleOperationSelect = useCallback((category, operation) => {
         setActiveCategory(category)
@@ -273,6 +283,7 @@ export default function Home() {
                         metadata={metadata}
                         isLoading={isLoading}
                         onFileSelect={handleFileSelect}
+                        onClearImage={handleClearImage}
                         operationName={currentOperationName}
                         error={error}
                         onDismissError={handleDismissError}

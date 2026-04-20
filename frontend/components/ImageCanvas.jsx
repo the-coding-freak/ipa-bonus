@@ -25,6 +25,7 @@ export default function ImageCanvas({
     metadata,
     isLoading,
     onFileSelect,
+    onClearImage = () => {},
     operationName = null,
     error = null,
     onDismissError = () => { },
@@ -32,6 +33,32 @@ export default function ImageCanvas({
     const [zoom, setZoom] = useState(1)
     const [origDimensions, setOrigDimensions] = useState(null)
     const [procDimensions, setProcDimensions] = useState(null)
+
+    // ── Hidden file input for "Change Image" button ────────────
+    const changeInputRef = useRef(null)
+
+    const handleChangeImage = () => {
+        if (changeInputRef.current) changeInputRef.current.click()
+    }
+
+    const handleChangeInputChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            onFileSelect(file)
+            setZoom(1)
+            setOrigDimensions(null)
+            setProcDimensions(null)
+        }
+        // Reset so the same file can be re-selected
+        e.target.value = ''
+    }
+
+    const handleRemoveImage = () => {
+        setZoom(1)
+        setOrigDimensions(null)
+        setProcDimensions(null)
+        onClearImage()
+    }
 
     // ── Dropzone ──────────────────────────────────────────────
     const onDrop = useCallback(
@@ -112,15 +139,51 @@ export default function ImageCanvas({
                     </button>
                 </div>
 
+                {/* Right-side actions */}
                 <div className="flex items-center gap-2">
-                    {/* Download */}
+
+                    {/* ── Change / Remove — only when image is loaded ── */}
+                    {originalImage && (
+                        <>
+                            {/* Change Image */}
+                            <button
+                                onClick={handleChangeImage}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded transition-colors
+                                           bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white"
+                                title="Load a different image"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V4m0 0l-3 3m3-3l3 3" />
+                                </svg>
+                                Change
+                            </button>
+
+                            {/* Remove Image */}
+                            <button
+                                onClick={handleRemoveImage}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded transition-colors
+                                           bg-red-900/60 hover:bg-red-800/80 text-red-300 hover:text-red-100"
+                                title="Remove image and clear canvas"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Remove
+                            </button>
+                        </>
+                    )}
+
+                    {/* Download processed image */}
                     <button
                         onClick={handleDownload}
                         disabled={!processedImage}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded transition-colors ${processedImage
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                            }`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                            processedImage
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                        }`}
                         title="Download Processed Image"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,6 +192,15 @@ export default function ImageCanvas({
                         Download
                     </button>
                 </div>
+
+                {/* Hidden file input for Change Image */}
+                <input
+                    ref={changeInputRef}
+                    type="file"
+                    accept=".jpeg,.jpg,.png,.bmp,.webp,.tif,.tiff"
+                    className="hidden"
+                    onChange={handleChangeInputChange}
+                />
             </div>
 
             {/* ── Error toast ─────────────────────────────────── */}
@@ -165,18 +237,38 @@ export default function ImageCanvas({
                     <div className="flex-1 min-h-0 overflow-auto relative">
                         {originalImage ? (
                             <div className="min-w-full min-h-full p-4 grid place-items-center">
-                                <img
-                                    src={originalImage}
-                                    alt="Original"
-                                    className="max-w-none"
-                                    style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
-                                    onLoad={(e) =>
-                                        setOrigDimensions({
-                                            width: e.target.naturalWidth,
-                                            height: e.target.naturalHeight,
-                                        })
-                                    }
-                                />
+                                {/* TIFF files can't be rendered natively in browsers */}
+                                {originalFile && /\.tiff?$/i.test(originalFile.name) ? (
+                                    <div className="flex flex-col items-center gap-3 text-center">
+                                        <div className="w-16 h-16 rounded-xl bg-indigo-900/40 border border-indigo-500/30 flex items-center justify-center">
+                                            <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-indigo-300">{originalFile.name}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Multi-band TIFF · {formatSize(originalFile.size)}</p>
+                                            <p className="text-[11px] text-gray-600 mt-2 max-w-[200px] leading-snug">
+                                                TIFF format cannot be previewed in the browser.<br />
+                                                Apply an operation to see the processed output.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <img
+                                        src={originalImage}
+                                        alt="Original"
+                                        className="max-w-none"
+                                        style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
+                                        onLoad={(e) =>
+                                            setOrigDimensions({
+                                                width: e.target.naturalWidth,
+                                                height: e.target.naturalHeight,
+                                            })
+                                        }
+                                    />
+                                )}
                             </div>
                         ) : (
                             /* ── Empty state / dropzone ── */

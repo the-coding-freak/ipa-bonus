@@ -82,18 +82,24 @@ def _make_response(img: np.ndarray, metadata: dict) -> JSONResponse:
     })
 
 
-def _to_binary(img: np.ndarray) -> np.ndarray:
+def _to_grayscale(img: np.ndarray) -> np.ndarray:
     """
-    Convert a BGR or grayscale image to a binary (thresholded) image.
-    Uses Otsu's method for automatic threshold selection.
+    Convert a BGR or grayscale image to a single-channel uint8 grayscale.
+    Morphological operations are applied on grayscale directly.
     """
     if len(img.shape) == 3 and img.shape[2] == 3:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    elif len(img.shape) == 3 and img.shape[2] == 1:
-        gray = img[:, :, 0]
-    else:
-        gray = img
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    if len(img.shape) == 3 and img.shape[2] == 1:
+        return img[:, :, 0]
+    return img  # already single channel
 
+
+def _to_binary(img: np.ndarray) -> np.ndarray:
+    """
+    Convert to binary via Otsu's thresholding.
+    Used only for skeletonization which requires a strict binary input.
+    """
+    gray = _to_grayscale(img)
     _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return binary
 
@@ -153,10 +159,10 @@ async def erode(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
-        result = cv2.erode(binary, kernel, iterations=iterations)
+        result = cv2.erode(gray, kernel, iterations=iterations)
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
         elapsed = round((time.time() - start) * 1000, 2)
@@ -205,10 +211,10 @@ async def dilate(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
-        result = cv2.dilate(binary, kernel, iterations=iterations)
+        result = cv2.dilate(gray, kernel, iterations=iterations)
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
         elapsed = round((time.time() - start) * 1000, 2)
@@ -258,11 +264,11 @@ async def morph_open(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
         result = cv2.morphologyEx(
-            binary, cv2.MORPH_OPEN, kernel, iterations=iterations
+            gray, cv2.MORPH_OPEN, kernel, iterations=iterations
         )
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
@@ -313,11 +319,11 @@ async def morph_close(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
         result = cv2.morphologyEx(
-            binary, cv2.MORPH_CLOSE, kernel, iterations=iterations
+            gray, cv2.MORPH_CLOSE, kernel, iterations=iterations
         )
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
@@ -364,10 +370,10 @@ async def morph_gradient(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
-        result = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel)
+        result = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, kernel)
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
         elapsed = round((time.time() - start) * 1000, 2)
@@ -412,10 +418,10 @@ async def top_hat(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
-        result = cv2.morphologyEx(binary, cv2.MORPH_TOPHAT, kernel)
+        result = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, kernel)
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
         elapsed = round((time.time() - start) * 1000, 2)
@@ -460,10 +466,10 @@ async def black_hat(
 
         start = time.time()
         img = await _read_image(file)
-        binary = _to_binary(img)
+        gray = _to_grayscale(img)
         kernel = _get_kernel(kernel_shape, kernel_size)
 
-        result = cv2.morphologyEx(binary, cv2.MORPH_BLACKHAT, kernel)
+        result = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, kernel)
         result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 
         elapsed = round((time.time() - start) * 1000, 2)
