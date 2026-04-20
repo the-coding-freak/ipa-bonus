@@ -2,7 +2,7 @@ fastapi==0.110.0
 uvicorn[standard]
 opencv-python-headless==4.9.0.80
 numpy==1.26.4
-Pillow==10.2.0
+Pillow>=11.0.0
 scikit-image==0.22.0
 onnxruntime==1.17.3
 python-multipart
