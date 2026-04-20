@@ -6,18 +6,6 @@ This tool is specifically designed to support the daily research workflow of fac
 
 ---
 
-## 📸 Screenshots
-
-*(Replace these placeholders with actual screenshots of your application)*
-
-![Main Interface](docs/screenshots/main-interface.png)
-*Figure 1: The ResearchVisionPro workspace showing the original and processed image viewer alongside the tool panel.*
-
-![Frequency Domain Processing](docs/screenshots/frequency-domain.png)
-*Figure 2: Applying a Butterworth low-pass filter in the frequency domain.*
-
----
-
 ## ✨ Features
 
 ResearchVisionPro implements 42+ image processing operations, organized intuitively into research categories:
