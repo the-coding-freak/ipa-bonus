@@ -8,6 +8,7 @@ Run with:  uvicorn main:app --reload
 Docs:      http://localhost:8000/docs
 """
 
+import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -79,12 +80,21 @@ def _check_models() -> None:
 # ---------------------------------------------------------------------------
 # Lifespan: startup / shutdown events
 # ---------------------------------------------------------------------------
+async def _startup() -> None:
+    """Run all startup tasks. Wrapped in a timeout to catch hangs."""
+    _check_models()
+    logger.info("📡 API docs available at http://localhost:8000/docs")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
-    logger.info("🚀 ResearchVisionPro backend starting up …")
-    _check_models()
-    logger.info("📡 API docs available at http://localhost:8000/docs")
+    logger.info("🚀 ResearchVisionPro backend starting up ...")
+    try:
+        await asyncio.wait_for(_startup(), timeout=30.0)
+    except asyncio.TimeoutError:
+        logger.error("❌ Startup timeout - a router or dependency is hanging")
+        raise
     yield
     # ── Shutdown ─────────────────────────────────────────────────────────
     logger.info("🛑 ResearchVisionPro backend shutting down.")
@@ -223,14 +233,25 @@ async def request_logging_middleware(request: Request, call_next):
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
-app.include_router(spatial.router)         # → /api/spatial/*
-app.include_router(frequency.router)       # → /api/frequency/*
-app.include_router(restoration.router)     # → /api/restoration/*
-app.include_router(color.router)           # → /api/color/*
-app.include_router(morphology.router)      # → /api/morphology/*
-app.include_router(segmentation.router)    # → /api/segmentation/*
-app.include_router(deeplearning.router)    # → /api/dl/*
-app.include_router(remote_sensing.router)  # → /api/remote/*
+_routers = [
+    ("spatial", spatial.router),
+    ("frequency", frequency.router),
+    ("restoration", restoration.router),
+    ("color", color.router),
+    ("morphology", morphology.router),
+    ("segmentation", segmentation.router),
+    ("deeplearning", deeplearning.router),
+    ("remote_sensing", remote_sensing.router),
+]
+
+for _name, _router in _routers:
+    try:
+        logger.info("Including router: %s", _name)
+        app.include_router(_router)
+        logger.info("✅ Router included: %s", _name)
+    except Exception as _exc:
+        logger.error("❌ Failed to include router %s: %s", _name, _exc, exc_info=True)
+        raise
 
 # ---------------------------------------------------------------------------
 # Health check
