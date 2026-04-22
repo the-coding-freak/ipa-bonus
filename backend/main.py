@@ -8,7 +8,6 @@ Run with:  uvicorn main:app --reload
 Docs:      http://localhost:8000/docs
 """
 
-import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -80,24 +79,11 @@ def _check_models() -> None:
 # ---------------------------------------------------------------------------
 # Lifespan: startup / shutdown events
 # ---------------------------------------------------------------------------
-async def _startup() -> None:
-    """Run all startup tasks. Wrapped in a timeout to catch hangs."""
-    _check_models()
-    logger.info("📡 API docs available at http://localhost:8000/docs")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ── Startup ──────────────────────────────────────────────────────────
     logger.info("🚀 ResearchVisionPro backend starting up ...")
-    try:
-        await asyncio.wait_for(_startup(), timeout=30.0)
-    except asyncio.TimeoutError:
-        logger.error("❌ Startup timeout - a router or dependency is hanging")
-        raise
     logger.info("✅ Startup complete, waiting for requests...")
     yield
-    # ── Shutdown ─────────────────────────────────────────────────────────
     logger.info("🛑 ResearchVisionPro backend shutting down.")
 
 
