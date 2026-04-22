@@ -120,13 +120,13 @@ app = FastAPI(
 # ---------------------------------------------------------------------------
 # CORS — allow Next.js dev server on port 3000
 # ---------------------------------------------------------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 # ---------------------------------------------------------------------------
@@ -178,57 +178,57 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # Middleware: Request logging + file validation
 # ---------------------------------------------------------------------------
 
-@app.middleware("http")
-async def request_logging_middleware(request: Request, call_next):
-    """Log every request with endpoint, method, content size, and duration."""
-    start = time.time()
-    path = request.url.path
-    method = request.method
-
-    # ── File type & size validation for POST endpoints with uploads ──
-    if method == "POST" and path.startswith("/api/"):
-        content_type = request.headers.get("content-type", "")
-        if "multipart/form-data" in content_type:
-            # Check Content-Length header for early size rejection
-            content_length = request.headers.get("content-length")
-            if content_length and int(content_length) > MAX_FILE_SIZE_BYTES:
-                size_mb = round(int(content_length) / (1024 * 1024), 1)
-                elapsed = round((time.time() - start) * 1000, 2)
-                logger.warning(
-                    "⛔ %s %s — REJECTED (file too large: %sMB > %sMB) [%sms]",
-                    method, path, size_mb, MAX_FILE_SIZE_MB, elapsed,
-                )
-                return JSONResponse(
-                    status_code=413,
-                    content={
-                        "error": "File Too Large",
-                        "detail": f"File size ({size_mb}MB) exceeds the {MAX_FILE_SIZE_MB}MB limit.",
-                    },
-                )
-
-    response = await call_next(request)
-    elapsed = round((time.time() - start) * 1000, 2)
-
-    # Log level based on status code
-    status = response.status_code
-    content_length = request.headers.get("content-length", "?")
-    if status >= 500:
-        logger.error(
-            "❌ %s %s → %d  [%sms]  body=%sB",
-            method, path, status, elapsed, content_length,
-        )
-    elif status >= 400:
-        logger.warning(
-            "⚠️  %s %s → %d  [%sms]  body=%sB",
-            method, path, status, elapsed, content_length,
-        )
-    else:
-        logger.info(
-            "✅ %s %s → %d  [%sms]  body=%sB",
-            method, path, status, elapsed, content_length,
-        )
-
-    return response
+# @app.middleware("http")
+# async def request_logging_middleware(request: Request, call_next):
+#     """Log every request with endpoint, method, content size, and duration."""
+#     start = time.time()
+#     path = request.url.path
+#     method = request.method
+#
+#     # ── File type & size validation for POST endpoints with uploads ──
+#     if method == "POST" and path.startswith("/api/"):
+#         content_type = request.headers.get("content-type", "")
+#         if "multipart/form-data" in content_type:
+#             # Check Content-Length header for early size rejection
+#             content_length = request.headers.get("content-length")
+#             if content_length and int(content_length) > MAX_FILE_SIZE_BYTES:
+#                 size_mb = round(int(content_length) / (1024 * 1024), 1)
+#                 elapsed = round((time.time() - start) * 1000, 2)
+#                 logger.warning(
+#                     "⛔ %s %s — REJECTED (file too large: %sMB > %sMB) [%sms]",
+#                     method, path, size_mb, MAX_FILE_SIZE_MB, elapsed,
+#                 )
+#                 return JSONResponse(
+#                     status_code=413,
+#                     content={
+#                         "error": "File Too Large",
+#                         "detail": f"File size ({size_mb}MB) exceeds the {MAX_FILE_SIZE_MB}MB limit.",
+#                     },
+#                 )
+#
+#     response = await call_next(request)
+#     elapsed = round((time.time() - start) * 1000, 2)
+#
+#     # Log level based on status code
+#     status = response.status_code
+#     content_length = request.headers.get("content-length", "?")
+#     if status >= 500:
+#         logger.error(
+#             "❌ %s %s → %d  [%sms]  body=%sB",
+#             method, path, status, elapsed, content_length,
+#         )
+#     elif status >= 400:
+#         logger.warning(
+#             "⚠️  %s %s → %d  [%sms]  body=%sB",
+#             method, path, status, elapsed, content_length,
+#         )
+#     else:
+#         logger.info(
+#             "✅ %s %s → %d  [%sms]  body=%sB",
+#             method, path, status, elapsed, content_length,
+#         )
+#
+#     return response
 
 
 # ---------------------------------------------------------------------------
