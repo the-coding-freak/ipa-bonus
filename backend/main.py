@@ -9,6 +9,8 @@ Docs:      http://localhost:8000/docs
 """
 
 import logging
+import signal
+import sys
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -40,6 +42,16 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("researchvisionpro")
+
+# ---------------------------------------------------------------------------
+# Signal handlers — log any termination signal so Railway kills are visible
+# ---------------------------------------------------------------------------
+def signal_handler(signum, frame):
+    logger.info("🛑 Received signal %s, shutting down...", signum)
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -86,6 +98,8 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("🛑 ResearchVisionPro backend shutting down.")
 
+
+logger.info("Signal handlers registered")
 
 # ---------------------------------------------------------------------------
 # FastAPI app creation
