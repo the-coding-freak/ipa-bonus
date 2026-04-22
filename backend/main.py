@@ -95,6 +95,7 @@ async def lifespan(app: FastAPI):
     except asyncio.TimeoutError:
         logger.error("❌ Startup timeout - a router or dependency is hanging")
         raise
+    logger.info("✅ Startup complete, waiting for requests...")
     yield
     # ── Shutdown ─────────────────────────────────────────────────────────
     logger.info("🛑 ResearchVisionPro backend shutting down.")
@@ -277,3 +278,9 @@ async def root():
         "docs": "http://localhost:8000/docs",
         "health": "http://localhost:8000/health",
     }
+
+
+@app.get("/ping", tags=["Health"])
+async def ping():
+    """Simple ping endpoint for debugging."""
+    return {"pong": True}
