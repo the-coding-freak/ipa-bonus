@@ -8,6 +8,7 @@ Run with:  uvicorn main:app --reload
 Docs:      http://localhost:8000/docs
 """
 
+import asyncio
 import logging
 import signal
 import sys
@@ -100,6 +101,20 @@ async def lifespan(app: FastAPI):
 
 
 logger.info("Signal handlers registered")
+
+# ---------------------------------------------------------------------------
+# Heartbeat — background task to confirm the event loop stays alive
+# ---------------------------------------------------------------------------
+@app.on_event("startup")
+async def startup_event():
+    logger.info("📍 Startup event triggered")
+
+    async def keep_alive():
+        while True:
+            logger.info("💓 App is alive")
+            await asyncio.sleep(5)
+
+    asyncio.create_task(keep_alive())
 
 # ---------------------------------------------------------------------------
 # FastAPI app creation
